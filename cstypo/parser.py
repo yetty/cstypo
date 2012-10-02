@@ -11,6 +11,7 @@ class TxtParser(object):
     '''
 
     text = ''
+    positions = {}
 
     def __init__(self, text=''):
         '''
@@ -28,9 +29,54 @@ class TxtParser(object):
         '''
 
         self.text = text
+        self.positions = {}
 
     def parse(self):
-        pass
+        '''
+        Runs all methods to parse input text.
+        '''
+
+        text = self.text
+        self.positions = {}     # for multiple parsing
+
+        for method in dir(self):
+            if 'parse_' in method:
+                callable = getattr(self, method)
+                text = callable(text)
+
+        return text
+
+    def sub(self, pattern, repl, s):
+        '''
+        Method for replacing by pattern and saving
+        the difference.
+
+        >>> import re
+        >>> parser = TxtParser()
+        >>> pattern = re.compile(ur'\.{3}')
+        >>> parser.sub(pattern, '?', 'First... Second...')
+        'First? Second?'
+        >>> parser.positions
+        {5: -2, 13: -4}
+        '''
+
+        diff = 0
+        while True:
+            pos = pattern.search(s)
+            if not pos:
+                break
+
+            start = pos.start()
+            length = len(s)
+            s = pattern.sub(repl, s, 1)
+            diff += len(s) - length
+
+            if not start in self.positions:
+                self.positions[start] = diff
+            else:
+                self.positions[start] += diff
+
+        return s
 
     def parse_ellipsis(self, text):
         '''
@@ -53,7 +99,7 @@ class TxtParser(object):
                     \.{3,4}             # three or four dots
                     (?![.\u2026])       # no ellipsis after
                  ''', re.M | re.U | re.X)
-        return pattern.sub(u'\u2026', text)
+        return self.sub(pattern, u'\u2026', text)
 
     def parse_en_dash(self, text):
         '''
@@ -86,17 +132,17 @@ class TxtParser(object):
                     -
                     (?=[\d ]|$)     # numbers or space after
                ''', re.X)
-        substituted = nums.sub(u'\u2013', text)
+        substituted = self.sub(nums, u'\u2013', text)
 
         alphanum = re.compile(ur'''
                         (?<=[^!*+,/:;<=>@\\\\_|-])  # cannot be before
                         --
                         (?=[^!*+,/:;<=>@\\\\_|-])   # cannot be after
                    ''', re.X)
-        substituted = alphanum.sub(u'\u2013', substituted)
+        substituted = self.sub(alphanum, u'\u2013', substituted)
 
         curr = re.compile(ur',-')
-        substituted = curr.sub(ur',\u2013', substituted)
+        substituted = self.sub(curr, ur',\u2013', substituted)
 
         return substituted
 
@@ -132,7 +178,7 @@ class TxtParser(object):
         '''
 
         pattern = re.compile(ur' --- ')
-        return pattern.sub(u'\u00a0\u2014 ', text)
+        return self.sub(pattern, u'\u00a0\u2014 ', text)
 
     def parse_arrows(self, text):
         '''
@@ -151,16 +197,16 @@ class TxtParser(object):
         '''
 
         leftright = re.compile(ur'<-{1,2}>')
-        substituted = leftright.sub(u'\u2194', text)
+        substituted = self.sub(leftright, u'\u2194', text)
 
         right = re.compile(ur'-{1,}>')
-        substituted = right.sub(u'\u2192', substituted)
+        substituted = self.sub(right, u'\u2192', substituted)
 
         left = re.compile(ur'<-{1,}')
-        substituted = left.sub(u'\u2190', substituted)
+        substituted = self.sub(left, u'\u2190', substituted)
 
         double = re.compile(ur'={1,}>')
-        substituted = double.sub(u'\u21d2', substituted)
+        substituted = self.sub(double, u'\u21d2', substituted)
 
         return substituted
 
@@ -175,7 +221,7 @@ class TxtParser(object):
         '''
 
         plusminus = re.compile('\+-')
-        return plusminus.sub(u'\u00b1', text)
+        return self.sub(plusminus, u'\u00b1', text)
 
     def parse_dimension(self, text):
         '''
@@ -192,10 +238,10 @@ class TxtParser(object):
         '''
 
         between = re.compile(ur'(\d+)( ?)x\2(?=\d)')
-        substituted = between.sub(ur'\1\2\u00d7\2', text)
+        substituted = self.sub(between, ur'\1\2\u00d7\2', text)
 
         after = re.compile(ur'(?<=\d)x(?=[ ,.]|$)', re.M)
-        substituted = after.sub(ur'\u00d7', substituted)
+        substituted = self.sub(after, ur'\u00d7', substituted)
 
         return substituted
 
@@ -203,3 +249,14 @@ class TxtParser(object):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+    parser = TxtParser(u'''
+            T... <-- --> <--> ==> 23. 5. 2009 1x20 +-1 -- 10-20
+
+            Unicode: \u00d7.
+        ''')
+    print parser.parse()
+
+    parser.positions = {}
+    parser.text = 'First... Second...'
+    print parser.parse()

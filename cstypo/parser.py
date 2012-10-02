@@ -12,6 +12,7 @@ class TxtParser(object):
 
     text = ''
     positions = {}
+    extracted = {}
 
     def __init__(self, text=''):
         '''
@@ -30,6 +31,7 @@ class TxtParser(object):
 
         self.text = text
         self.positions = {}
+        self.extracted = {}
 
     def parse(self):
         '''
@@ -46,7 +48,7 @@ class TxtParser(object):
 
         return text
 
-    def sub(self, pattern, repl, s):
+    def sub(self, pattern, repl, s, extract=False):
         '''
         Method for replacing by pattern and saving
         the difference.
@@ -57,10 +59,9 @@ class TxtParser(object):
         >>> parser.sub(pattern, '?', 'First... Second...')
         'First? Second?'
         >>> parser.positions
-        {5: -2, 13: -4}
+        {5: -2, 13: -2}
         '''
 
-        diff = 0
         while True:
             pos = pattern.search(s)
             if not pos:
@@ -69,12 +70,18 @@ class TxtParser(object):
             start = pos.start()
             length = len(s)
             s = pattern.sub(repl, s, 1)
-            diff += len(s) - length
+            diff = len(s) - length
 
             if not start in self.positions:
                 self.positions[start] = diff
             else:
                 self.positions[start] += diff
+
+            if extract:
+                self.extracted[start] = pos.group()
+
+            if self.positions[start] == 0:
+                del self.positions[start]
 
         return s
 
@@ -245,18 +252,121 @@ class TxtParser(object):
 
         return substituted
 
+    def parse_quotes(self, text):
+        '''
+        Transform quotes.
+
+        >>> parser = TxtParser()
+        >>> parser.parse_quotes('"Pojd uz," rekla')
+        u'\u201ePojd uz,\u201c rekla'
+        >>> parser.parse_quotes("'Nepujdu,' odvetil.")
+        u'\u201aNepujdu,\u2018 odvetil.'
+        >>> parser.parse_quotes("Pad' a chcip'.")
+        "Pad' a chcip'."
+
+        '''
+
+        double = re.compile('''
+                    (?<!"|\w)           # no " or alphachars before
+                    "
+                    (?!\ |")            # no space or " after
+                    (.+)                # whatever in the middle
+                    (?<!\ |")           # no space or " before
+                    "
+                    (?!")               # no " after
+                ''', re.U | re.X)
+        text = self.sub(double, ur'\u201E\1\u201C', text)
+
+        single = re.compile('''
+                    (?<!'|\w)           # no ' or alphachars before
+                    '
+                    (?!\ |')            # no space or ' after
+                    (.+?)               # whatever
+                    (?<!\ |')           # no space or ' before
+                    '
+                    (?!')               # no ' after
+                ''', re.U | re.X)
+        text = self.sub(single, ur'\u201A\1\u2018', text)
+
+        return text
+
+    def parse_prepositions(self, text):
+        '''
+        Insert non breakable space after some prepositions.
+
+        >>> parser = TxtParser()
+        >>> parser.parse_prepositions('Stal opren o zed.')
+        u'Stal opren o\\xa0zed.'
+        >>> parser.parse_prepositions('Pavouk byl i v jogurtu')
+        u'Pavouk byl i\\xa0v\\xa0jogurtu'
+
+        '''
+
+        pattern = re.compile(ur'(?<= |\u00a0)([KkOoSsUuVvZzIiA]) ', re.M)
+
+        return self.sub(pattern, ur'\1\u00a0', text)
+
+    def parse_last_short_words(self, text):
+        '''
+        Insert non breakable space before short last words.
+        '''
+
+        pattern = re.compile(ur'''
+                        (?<=.{50})
+                        \s+
+                        (?=[\x17-\x1F]*\S{1,6}[\x17-\x1F]*$)
+                    ''', re.S | re.U | re.X)
+
+        return self.sub(pattern, '\u00a0', text)
+
+
+class HtmlParser(TxtParser):
+    def parse(self):
+        '''
+        Extract HTML tags, transform text and return back
+        HTML into modified text.
+
+        >>> parser = HtmlParser('<hr>')
+        >>> parser.parse()
+        '<hr>'
+
+        >>> parser = HtmlParser('<p>Dots...</p>')
+        >>> parser.parse()
+        u'<p>Dots\u2026</p>'
+
+        >>> parser = HtmlParser('T... --- <-- --> <--> ==> 1x2 +-<i>1</i>')
+        >>> parser.parse()
+        u'T\u2026\\xa0\u2014 \u2190 \u2192 \u2194 \u21d2 1\\xd72 \\xb1<i>1</i>'
+
+        '''
+
+        html = re.compile('''
+                </?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)/?>
+                ''', re.X)
+
+        self.text = self.sub(html, '', self.text, extract=True)
+
+        text = super(HtmlParser, self).parse()
+
+        self.positions[0] = 0   # fallback
+        sorted_positions = sorted(self.positions)
+
+        diff = 0
+        for pos in sorted_positions:
+            diff += self.positions[pos]
+            self.positions[pos] = diff
+
+        for i in sorted(self.extracted, reverse=True):
+            for pos in reversed(sorted_positions):
+                if pos <= i:
+                    diff = self.positions[pos]
+                    break
+
+            text = text[:i + diff] + self.extracted[i] + text[i + diff:]
+
+        return text
+
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-
-    parser = TxtParser(u'''
-            T... <-- --> <--> ==> 23. 5. 2009 1x20 +-1 -- 10-20
-
-            Unicode: \u00d7.
-        ''')
-    print parser.parse()
-
-    parser.positions = {}
-    parser.text = 'First... Second...'
-    print parser.parse()

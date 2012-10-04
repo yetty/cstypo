@@ -11,5 +11,4 @@ setup(
     license=open('LICENSE').read(),
     description='Package to apply Czech typography easily',
     long_description=open('README').read(),
-    install_requires=[],
 )

@@ -1,2 +1,3 @@
 include *.md
+include README LICENSE
 recursive-include docs *.md

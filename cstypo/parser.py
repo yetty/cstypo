@@ -29,7 +29,7 @@ class TxtParser(object):
 
         '''
 
-        self.text = text
+        self.text = text.decode('string-escape').decode('utf-8')
         self.positions = {}
         self.extracted = {}
 
@@ -138,14 +138,14 @@ class TxtParser(object):
                     (?<=[\d ])      # numbers or space before
                     -
                     (?=[\d ]|$)     # numbers or space after
-               ''', re.X)
+               ''', re.X | re.U)
         substituted = self.sub(nums, u'\u2013', text)
 
         alphanum = re.compile(ur'''
                         (?<=[^!*+,/:;<=>@\\\\_|-])  # cannot be before
                         --
                         (?=[^!*+,/:;<=>@\\\\_|-])   # cannot be after
-                   ''', re.X)
+                   ''', re.X | re.U)
         substituted = self.sub(alphanum, u'\u2013', substituted)
 
         curr = re.compile(ur',-')
@@ -270,11 +270,11 @@ class TxtParser(object):
                     (?<!"|\w)           # no " or alphachars before
                     "
                     (?!\ |")            # no space or " after
-                    (.+)                # whatever in the middle
+                    ([^"]+)                # whatever in the middle
                     (?<!\ |")           # no space or " before
                     "
                     (?!")               # no " after
-                ''', re.U | re.X)
+                ''', re.U | re.X | re.M | re.S)
         text = self.sub(double, ur'\u201E\1\u201C', text)
 
         single = re.compile('''
@@ -285,7 +285,7 @@ class TxtParser(object):
                     (?<!\ |')           # no space or ' before
                     '
                     (?!')               # no ' after
-                ''', re.U | re.X)
+                ''', re.U | re.X | re.M | re.S)
         text = self.sub(single, ur'\u201A\1\u2018', text)
 
         return text
@@ -328,7 +328,7 @@ class HtmlParser(TxtParser):
 
         >>> parser = HtmlParser('<hr>')
         >>> parser.parse()
-        '<hr>'
+        u'<hr>'
 
         >>> parser = HtmlParser('<p>Dots...</p>')
         >>> parser.parse()

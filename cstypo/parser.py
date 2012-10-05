@@ -29,7 +29,11 @@ class TxtParser(object):
 
         '''
 
-        self.text = text.decode('string-escape').decode('utf-8')
+        try:
+            self.text = text.decode('string-escape').decode('utf-8')
+        except:
+            self.text = text
+
         self.positions = {}
         self.extracted = {}
 

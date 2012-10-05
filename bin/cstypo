@@ -5,14 +5,13 @@
 cstypo
 
 Usage:
-    cstypo [-o <output>] [--type (txt|html)] <input>
+    cstypo [--type (txt|html)] <input>
     cstypo -h | --help
     cstypo -v | --version
 
 Options:
     -h --help               show this screen.
     -v --version            show version.
-    -o <output>             output file.
     --type                  type of parsed file (txt default).
 
 """

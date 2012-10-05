@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+
+"""
+
+cstypo
+
+Usage:
+    cstypo [-o <output>] [--type (txt|html)] <input>
+    cstypo -h | --help
+    cstypo -v | --version
+
+Options:
+    -h --help               show this screen.
+    -v --version            show version.
+    -o <output>             output file.
+    --type                  type of parsed file (txt default).
+
+"""
+
+import sys
+import codecs
+
+from cstypo import parser
+from docopt import docopt
+
+if not sys.stdout.isatty():
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
+arguments = docopt(__doc__, help=True, version='0.0.1')
+
+try:
+    input = open(arguments['<input>']).read()
+except:
+    raise Exception('Can\'t load input')
+
+
+if not '--type' in arguments or arguments['txt']:
+    inst = parser.TxtParser(input)
+else:
+    inst = parser.HtmlParser(input)
+
+print inst.parse()

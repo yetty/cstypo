@@ -6,7 +6,7 @@ setup(
     author='Juda Kaleta',
     author_email='juda.kaleta@gmail.com',
     packages=['cstypo', 'cstypo.templatetags', 'cstypo.tests'],
-    scripts=['bin/cstypo.py'],
+    scripts=['bin/cstypo'],
     url='https://github.com/yetty/cstypo',
     license=open('LICENSE').read(),
     description='Package to apply Czech typography easily',

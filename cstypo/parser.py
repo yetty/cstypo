@@ -346,7 +346,7 @@ class HtmlParser(TxtParser):
 
         html = re.compile('''
                 </?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)/?>
-                ''', re.X)
+                ''', re.X | re.S)
 
         self.text = self.sub(html, '', self.text, extract=True)
 

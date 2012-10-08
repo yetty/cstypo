@@ -82,7 +82,10 @@ class TxtParser(object):
                 self.positions[start] += diff
 
             if extract:
-                self.extracted[start] = pos.group()
+                if not start in self.extracted:
+                    self.extracted[start] = pos.group()
+                else:
+                    self.extracted[start] += pos.group()
 
             if self.positions[start] == 0:
                 del self.positions[start]
@@ -344,11 +347,7 @@ class HtmlParser(TxtParser):
 
         '''
 
-        html = re.compile('''
-                </?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)/?>
-                ''', re.X | re.S)
-
-        self.text = self.sub(html, '', self.text, extract=True)
+        self.text = self.escape_html(self.text)
 
         text = super(HtmlParser, self).parse()
 
@@ -369,6 +368,41 @@ class HtmlParser(TxtParser):
             text = text[:i + diff] + self.extracted[i] + text[i + diff:]
 
         return text
+
+    def escape_html(self, text):
+        '''
+        Return text without HTML tags and put
+        them into dict.
+
+        >>> parser = HtmlParser()
+        >>> parser.escape_html('<h1 id="id-h1">Nadpis</h1>')
+        'Nadpis'
+        >>> print parser.extracted
+        {0: '<h1 id="id-h1">', 6: '</h1>'}
+
+        >>> parser.escape_html('<hr />')
+        ''
+        >>> print parser.extracted
+        {0: '<hr />'}
+
+        >>> parser.escape_html('<-- --> <-->')
+        '<-- --> <-->'
+        >>> print parser.extracted
+        {}
+
+        >>> parser.escape_html('<p><i>Hi!</i></p>')
+        'Hi!'
+        >>> print parser.extracted
+        {0: '<p><i>', 3: '</i></p>'}
+
+        '''
+
+        self.extracted = {}
+        html = re.compile('''
+                </?\w+[^>]*/?>
+                ''', re.X | re.S)
+
+        return self.sub(html, '', text, extract=True)
 
 
 if __name__ == '__main__':

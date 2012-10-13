@@ -74,18 +74,14 @@ class TxtParser(object):
             start = pos.start()
             length = len(s)
             s = pattern.sub(repl, s, 1)
+
             diff = len(s) - length
 
-            if not start in self.positions:
-                self.positions[start] = diff
-            else:
-                self.positions[start] += diff
+            self.positions[start] = self.positions.get(start, 0) + diff
 
             if extract:
-                if not start in self.extracted:
-                    self.extracted[start] = pos.group()
-                else:
-                    self.extracted[start] += pos.group()
+                self.extracted[start] = self.extracted.get(start, '') \
+                                            + pos.group()
 
             if self.positions[start] == 0:
                 del self.positions[start]

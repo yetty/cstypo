@@ -4,4 +4,6 @@ python:
     - "2.7"
     - "3.2"
 
-script: nosetests
+script:
+    - nosetests
+    - python cstypo/parser.py -v

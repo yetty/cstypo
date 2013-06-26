@@ -5,6 +5,7 @@ Balíček pro zkrášlení českých textů aplikováním základních typografi
 pravidel. Nesnaží se o pokrytí veškerých českých pravidel, spíše o aplikaci
 základních a to hlavně těch, které jsou na webu nejvíce vidět.
 
+.. image:: https://travis-ci.org/yetty/cstypo.png?branch=master
 
 
 Instalace
@@ -31,16 +32,16 @@ API
 
   Je možné využít samostatně jednotlivé metody aplikující určitá pravidla:
 
-    - ``cstypo.parser.TxtParser.parse_ellipsis``
-    - ``cstypo.parser.TxtParser.parse_en_dash``
-    - ``cstypo.parser.TxtParser.parse_em_dash``
-    - ``cstypo.parser.TxtParser.parse_dates``
-    - ``cstypo.parser.TxtParser.parse_arrows``
-    - ``cstypo.parser.TxtParser.parse_plusminus``
-    - ``cstypo.parser.TxtParser.parse_dimension``
-    - ``cstypo.parser.TxtParser.parse_quotes``
-    - ``cstypo.parser.TxtParser.parse_prepositions``
-    - ``cstypo.parser.TxtParser.parse_last_short_word``
+  - ``cstypo.parser.TxtParser.parse_ellipsis``
+  - ``cstypo.parser.TxtParser.parse_en_dash``
+  - ``cstypo.parser.TxtParser.parse_em_dash``
+  - ``cstypo.parser.TxtParser.parse_dates``
+  - ``cstypo.parser.TxtParser.parse_arrows``
+  - ``cstypo.parser.TxtParser.parse_plusminus``
+  - ``cstypo.parser.TxtParser.parse_dimension``
+  - ``cstypo.parser.TxtParser.parse_quotes``
+  - ``cstypo.parser.TxtParser.parse_prepositions``
+  - ``cstypo.parser.TxtParser.parse_last_short_word``
 
 
 -   ``cstypo.parser.HtmlParser``

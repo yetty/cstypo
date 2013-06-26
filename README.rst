@@ -6,6 +6,7 @@ pravidel. Nesnaží se o pokrytí veškerých českých pravidel, spíše o apli
 základních a to hlavně těch, které jsou na webu nejvíce vidět.
 
 .. image:: https://travis-ci.org/yetty/cstypo.png?branch=master
+    :target: https://travis-ci.org/yetty/cstypo
 
 
 Instalace

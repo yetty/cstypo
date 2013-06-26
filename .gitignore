@@ -1,0 +1,9 @@
+*~
+build
+_build
+_static
+_templates
+dist
+*.pyc
+*.egg-info
+*.egg

@@ -341,6 +341,10 @@ class HtmlParser(TxtParser):
         >>> parser.parse()
         u'T\u2026\\xa0\u2014 \u2190 \u2192 \u2194 \u21d2 1\\xd72 \\xb1<i>1</i>'
 
+        >>> parser = HtmlParser('some <i>more</i> wine.')
+        >>> parser.parse()
+        u'some <i>more</i> wine.'
+
         '''
 
         self.text = self.escape_html(self.text)

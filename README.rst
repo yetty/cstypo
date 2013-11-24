@@ -8,6 +8,8 @@ základních a to hlavně těch, které jsou na webu nejvíce vidět.
 .. image:: https://travis-ci.org/yetty/cstypo.png?branch=master
     :target: https://travis-ci.org/yetty/cstypo
 
+**Pozor!** Aplikování typografických pravidel na delší texty je poměrně výpočetně
+náročná operace. Zvažte kešování těchto textů.
 
 Instalace
 ---------

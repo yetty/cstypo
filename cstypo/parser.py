@@ -2,20 +2,20 @@ import re
 
 
 class TxtParser(object):
-    '''
+    """
     Class to apply Czech typography rules to input text.
     Most of regular expressions are from Texy!
 
     http://github.com/dg/texy/blob/master/Texy/modules/TexyTypographyModule.php
 
-    '''
+    """
 
     text = ''
     positions = {}
     extracted = {}
 
     def __init__(self, text=''):
-        '''
+        """
         Create instance of TxtParser, save input.
 
         >>> myparser = TxtParser('This is my input')
@@ -27,7 +27,7 @@ class TxtParser(object):
         >>> myparser.text == ''
         True
 
-        '''
+        """
 
         try:
             self.text = text.decode('string-escape').decode('utf-8')
@@ -38,9 +38,9 @@ class TxtParser(object):
         self.extracted = {}
 
     def parse(self):
-        '''
+        """
         Runs all methods to parse input text.
-        '''
+        """
 
         text = self.text
         self.positions = {}     # for multiple parsing
@@ -53,7 +53,7 @@ class TxtParser(object):
         return text
 
     def sub(self, pattern, repl, s, extract=False):
-        '''
+        """
         Method for replacing by pattern and saving
         the difference.
 
@@ -64,7 +64,7 @@ class TxtParser(object):
         'First? Second?'
         >>> parser.positions
         {5: -2, 13: -2}
-        '''
+        """
 
         while True:
             pos = pattern.search(s)
@@ -89,7 +89,7 @@ class TxtParser(object):
         return s
 
     def parse_ellipsis(self, text):
-        '''
+        """
         Replace three dots by ellipsis.
 
         >>> parser = TxtParser()
@@ -102,17 +102,17 @@ class TxtParser(object):
         Four dots are equal to three -> ellipsis.
         >>> parser.parse_ellipsis('What about four dots....?')
         u'What about four dots\u2026?'
-        '''
+        """
 
-        pattern = re.compile(ur'''
+        pattern = re.compile(ur"""
                     (?<![.\u2026])      # no ellipsis before
                     \.{3,4}             # three or four dots
                     (?![.\u2026])       # no ellipsis after
-                 ''', re.M | re.U | re.X)
+                 """, re.M | re.U | re.X)
         return self.sub(pattern, u'\u2026', text)
 
     def parse_en_dash(self, text):
-        '''
+        """
         Apply rules for en dash (pomlcka).
 
         >>> parser = TxtParser()
@@ -135,20 +135,20 @@ class TxtParser(object):
         >>> parser.parse_en_dash('Kcs 30,-')
         u'Kcs 30,\u2013'
 
-        '''
+        """
 
-        nums = re.compile(ur'''
+        nums = re.compile(ur"""
                     (?<=[\d ])      # numbers or space before
                     -
                     (?=[\d ]|$)     # numbers or space after
-               ''', re.X | re.U)
+               """, re.X | re.U)
         substituted = self.sub(nums, u'\u2013', text)
 
-        alphanum = re.compile(ur'''
+        alphanum = re.compile(ur"""
                         (?<=[^!*+,/:;<=>@\\\\_|-])  # cannot be before
                         --
                         (?=[^!*+,/:;<=>@\\\\_|-])   # cannot be after
-                   ''', re.X | re.U)
+                   """, re.X | re.U)
         substituted = self.sub(alphanum, u'\u2013', substituted)
 
         curr = re.compile(ur',-')
@@ -157,7 +157,7 @@ class TxtParser(object):
         return substituted
 
     def parse_dates(self, text):
-        '''
+        """
         Inserts non breaking space to dates.
 
         >>> parser = TxtParser()
@@ -166,7 +166,7 @@ class TxtParser(object):
         >>> parser.parse_dates('9. 5.')
         u'9.\\xa05.'
 
-        '''
+        """
 
         with_year = re.compile(ur'(?<!\d)(\d{1,2}\.) (\d{1,2}\.) (\d\d)')
         substituted = with_year.sub(ur'\1\u00a0\2\u00a0\3', text)
@@ -177,7 +177,7 @@ class TxtParser(object):
         return substituted
 
     def parse_em_dash(self, text):
-        '''
+        """
         Apply rules and substitutes for em dash.
         Really rare.
 
@@ -185,13 +185,13 @@ class TxtParser(object):
         >>> parser.parse_em_dash('No --- or yes?')
         u'No\\xa0\u2014 or yes?'
 
-        '''
+        """
 
         pattern = re.compile(ur' --- ')
         return self.sub(pattern, u'\u00a0\u2014 ', text)
 
     def parse_arrows(self, text):
-        '''
+        """
         Transform arrows into UTF8 chars.
 
         >>> parser = TxtParser()
@@ -204,7 +204,7 @@ class TxtParser(object):
         >>> parser.parse_arrows('Double ==> right.')
         u'Double \u21d2 right.'
 
-        '''
+        """
 
         leftright = re.compile(ur'<-{1,2}>')
         substituted = self.sub(leftright, u'\u2194', text)
@@ -221,20 +221,20 @@ class TxtParser(object):
         return substituted
 
     def parse_plusminus(self, text):
-        '''
+        """
         Transform plusminus to UTF8 char.
 
         >>> parser = TxtParser()
         >>> parser.parse_plusminus('a = +-10')
         u'a = \\xb110'
 
-        '''
+        """
 
         plusminus = re.compile('\+-')
         return self.sub(plusminus, u'\u00b1', text)
 
     def parse_dimension(self, text):
-        '''
+        """
         Transform x to UTF8 char
 
         >>> parser = TxtParser()
@@ -245,7 +245,7 @@ class TxtParser(object):
         >>> parser.parse_dimension('5x rychleji')
         u'5\\xd7 rychleji'
 
-        '''
+        """
 
         between = re.compile(ur'(\d+)( ?)x\2(?=\d)')
         substituted = self.sub(between, ur'\1\2\u00d7\2', text)
@@ -256,7 +256,7 @@ class TxtParser(object):
         return substituted
 
     def parse_quotes(self, text):
-        '''
+        """
         Transform quotes.
 
         >>> parser = TxtParser()
@@ -267,9 +267,9 @@ class TxtParser(object):
         >>> parser.parse_quotes("Pad' a chcip'.")
         "Pad' a chcip'."
 
-        '''
+        """
 
-        double = re.compile('''
+        double = re.compile("""
                     (?<!"|\w)           # no " or alphachars before
                     "
                     (?!\ |")            # no space or " after
@@ -277,10 +277,10 @@ class TxtParser(object):
                     (?<!\ |")           # no space or " before
                     "
                     (?!")               # no " after
-                ''', re.U | re.X | re.M | re.S)
+                """, re.U | re.X | re.M | re.S)
         text = self.sub(double, ur'\u201E\1\u201C', text)
 
-        single = re.compile('''
+        single = re.compile("""
                     (?<!'|\w)           # no ' or alphachars before
                     '
                     (?!\ |')            # no space or ' after
@@ -288,13 +288,13 @@ class TxtParser(object):
                     (?<!\ |')           # no space or ' before
                     '
                     (?!')               # no ' after
-                ''', re.U | re.X | re.M | re.S)
+                """, re.U | re.X | re.M | re.S)
         text = self.sub(single, ur'\u201A\1\u2018', text)
 
         return text
 
     def parse_prepositions(self, text):
-        '''
+        """
         Insert non breakable space after some prepositions.
 
         >>> parser = TxtParser()
@@ -303,29 +303,29 @@ class TxtParser(object):
         >>> parser.parse_prepositions('Pavouk byl i v jogurtu')
         u'Pavouk byl i\\xa0v\\xa0jogurtu'
 
-        '''
+        """
 
         pattern = re.compile(ur'(?<= |\u00a0)([KkOoSsUuVvZzIiA]) ', re.M)
 
         return self.sub(pattern, ur'\1\u00a0', text)
 
     def parse_last_short_words(self, text):
-        '''
+        """
         Insert non breakable space before short last words.
-        '''
+        """
 
-        pattern = re.compile(ur'''
+        pattern = re.compile(ur"""
                         (?<=.{50})
                         \s+
                         (?=[\x17-\x1F]*\S{1,6}[\x17-\x1F]*$)
-                    ''', re.S | re.U | re.X)
+                    """, re.S | re.X)
 
-        return self.sub(pattern, '\u00a0', text)
+        return self.sub(pattern, ur'\u00a0', text)
 
 
 class HtmlParser(TxtParser):
     def parse(self):
-        '''
+        """
         Extract HTML tags, transform text and return back
         HTML into modified text.
 
@@ -345,7 +345,7 @@ class HtmlParser(TxtParser):
         >>> parser.parse()
         u'some <i>more</i> wine.'
 
-        '''
+        """
 
         self.text = self.escape_html(self.text)
 
@@ -370,7 +370,7 @@ class HtmlParser(TxtParser):
         return text
 
     def escape_html(self, text):
-        '''
+        """
         Return text without HTML tags and put
         them into dict.
 
@@ -395,12 +395,12 @@ class HtmlParser(TxtParser):
         >>> print parser.extracted
         {0: '<p><i>', 3: '</i></p>'}
 
-        '''
+        """
 
         self.extracted = {}
-        html = re.compile('''
+        html = re.compile("""
                 </?\w+[^>]*/?>
-                ''', re.X | re.S)
+                """, re.X | re.S)
 
         return self.sub(html, '', text, extract=True)
 

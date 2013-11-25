@@ -7,6 +7,12 @@ základních a to hlavně těch, které jsou na webu nejvíce vidět.
 
 .. image:: https://travis-ci.org/yetty/cstypo.png?branch=master
     :target: https://travis-ci.org/yetty/cstypo
+.. image:: https://coveralls.io/repos/yetty/cstypo/badge.png?branch=master
+    :target: https://coveralls.io/r/yetty/cstypo?branch=master
+.. image:: https://pypip.in/v/cstypo/badge.png
+    :target: https://crate.io/packages/cstypo/
+.. image:: https://pypip.in/d/cstypo/badge.png
+    :target: https://crate.io/packages/cstypo/
 
 **Pozor!** Aplikování typografických pravidel na delší texty je poměrně výpočetně
 náročná operace. Zvažte kešování těchto textů.

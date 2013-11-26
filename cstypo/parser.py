@@ -403,8 +403,3 @@ class HtmlParser(TxtParser):
                 """, re.X | re.S)
 
         return self.sub(html, '', text, extract=True)
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

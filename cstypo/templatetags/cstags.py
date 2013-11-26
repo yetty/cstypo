@@ -30,8 +30,3 @@ def typify(text, type='txt'):
         safe = lambda text: text
 
     return safe(inst.parse())
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

@@ -12,7 +12,7 @@ install:
     - pip install nose --use-mirrors
 script:
     - python setup.py build
-    - nosetests --with-coverage --cover-package=cstypo --cover-tests --cover-erase
+    - nosetests --with-coverage --cover-package=cstypo --cover-tests --cover-erase --with-doctest
     - python cstypo/parser.py -v
 after_success:
     - coveralls

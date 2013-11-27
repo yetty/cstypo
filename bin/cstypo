@@ -25,7 +25,7 @@ from docopt import docopt
 if not sys.stdout.isatty():
     sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-arguments = docopt(__doc__, help=True, version='0.0.1')
+arguments = docopt(__doc__, help=True, version='0.1.3')
 
 try:
     input = open(arguments['<input>']).read()

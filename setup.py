@@ -11,5 +11,5 @@ setup(
     license=open('LICENSE').read(),
     description='Package to apply Czech typography easily',
     long_description=open('README.rst').read(),
-    requires=['docopt (>=0.5.0)'],
+    install_requires=['docopt >= 0.5.0', ],
 )

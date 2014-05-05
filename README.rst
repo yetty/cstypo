@@ -36,7 +36,7 @@ API
   ::
 
         parser = cstypo.parser.TxtParser(text)
-        print parser.parser()       # zformátovaný text
+        print parser.parse()       # zformátovaný text
 
 
   Je možné využít samostatně jednotlivé metody aplikující určitá pravidla:

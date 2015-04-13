@@ -305,7 +305,7 @@ class TxtParser(object):
 
         """
 
-        pattern = re.compile(ur'(?<= |\u00a0)([KkOoSsUuVvZzIiA]) ', re.M)
+        pattern = re.compile(ur'(?<= |\u00a0)([KkOoSsUuVvZzIiAa]) ', re.M)
 
         return self.sub(pattern, ur'\1\u00a0', text)
 
